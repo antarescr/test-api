@@ -32,4 +32,20 @@ stages:
         echo "var=$(nodeEnv)"
     - script: |
         echo "var=$(nodePort)"
-
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        repository: ${{ parameters.imageName }}
+        command: build
+        containerRegistry: 'registryConnection'
+        dockerfile: "**/qa.dockerfile"
+        tags: ${{ parameters.tag }}
+        arguments: '--build-arg NODE_ENV=$(nodeEnv) NODE_PORT=$(nodePort)'
+    - task: Docker@2
+      displayName: 'Push Docker Image'
+      inputs:
+        command: 'push'
+        containerRegistry: 'registryConnection'
+        repository: ${{ parameters.imageName }}
+        tags: |
+          ${{ parameters.tag }}
