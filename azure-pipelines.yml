@@ -32,3 +32,4 @@ stages:
         echo "var=$(nodeEnv)"
     - script: |
         echo "var=$(nodePort)"
+
