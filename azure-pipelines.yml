@@ -38,7 +38,7 @@ stages:
         repository: ${{ parameters.imageName }}
         command: build
         containerRegistry: 'registryConnection'
-        dockerfile: "**/qa.dockerfile"
+        dockerfile: "**/dockerfile"
         tags: ${{ parameters.tag }}
         arguments: '--build-arg NODE_ENV=$(nodeEnv) NODE_PORT=$(nodePort)'
     - task: Docker@2
