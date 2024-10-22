@@ -1,19 +1,34 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
-pool:
-  vmImage: ubuntu-latest
+pool: local-agent
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+resources:
+- repo: self
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+variables:
+  - group: test-api
+  - name: nodeEnv
+    value: $[variables.NODE_ENV]
+  
+  - group: test-api
+  - name: nodePort
+    value: $[variables.NODE_PORT]
+
+parameters:
+  - name: tag
+    default: "$(Build.BuildId)"
+  - name: imageName
+    default: "test-api"
+
+stages:
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - script: |
+        echo "var=$(nodeEnv)"
+    - script: |
+        echo "var=$(nodePort)"
