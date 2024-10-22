@@ -40,7 +40,7 @@ stages:
         containerRegistry: 'registryConnection'
         dockerfile: "**/dockerfile"
         tags: ${{ parameters.tag }}
-        arguments: '--build-arg NODE_ENV=$(nodeEnv) NODE_PORT=$(nodePort)'
+        arguments: '--build-arg NODE_ENV=$(nodeEnv) --build-arg NODE_PORT=$(nodePort)'
     - task: Docker@2
       displayName: 'Push Docker Image'
       inputs:
