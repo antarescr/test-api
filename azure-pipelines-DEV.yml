@@ -28,7 +28,7 @@ parameters:
   - name: tag
     default: "$(Build.BuildId)"
   - name: imageName
-    default: "test-api"
+    default: "test-api-dev"
 
 stages:
 - stage: Build
