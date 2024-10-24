@@ -66,8 +66,9 @@ stages:
         inputs:
           #Nombre de conector creado en ADS para pegar con webApps
           azureSubscription: 'appDeployConnection'
-          imageToDeploy: acrappsJorge.azurecr.io/${{ parameters.imageName }}:$(Build.BuildId)
-          containerAppName: 'app-test-app' # NOMBRE DEL CONTAINER APP
+          imageToDeploy: acrappsjorge.azurecr.io/${{ parameters.imageName }}:$(Build.BuildId)
+          #NOMBRE DEL CONTAINER APP
+          containerAppName: 'app-test-app'
           resourceGroup: rg-jorge
           acrUsername: $(arcUser)
           acrPassword: $(arcPWD)
