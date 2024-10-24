@@ -1,19 +1,74 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
 
 trigger:
 - dev
 
-pool:
-  vmImage: ubuntu-latest
+pool: local-agent
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+resources:
+- repo: self
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+variables:
+  - group: test-api-dev
+  - name: nodeEnv
+    value: $[variables.NODE_ENV]
+  
+  - group: test-api
+  - name: nodePort
+    value: $[variables.NODE_PORT]
+  
+  #Se reutilizan las credenciales ya creadas
+  - group: CICD
+  - name: arcUser
+    value: $[variables.acrUsername]
+  #Se reutilizan las credenciales ya creadas
+  - group: CICD
+  - name: arcPWD
+    value: $[variables.acrPassword]
+parameters:
+  - name: tag
+    default: "$(Build.BuildId)"
+  - name: imageName
+    default: "test-api"
+
+stages:
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - script: |
+        echo "var=$(nodeEnv)"
+    - script: |
+        echo "var=$(nodePort)"
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        repository: ${{ parameters.imageName }}
+        command: build
+        containerRegistry: 'registryConnection'
+        dockerfile: "**/dockerfile"
+        tags: ${{ parameters.tag }}
+        arguments: '--build-arg NODE_ENV=$(nodeEnv) --build-arg NODE_PORT=$(nodePort)'
+    - task: Docker@2
+      displayName: 'Push Docker Image'
+      inputs:
+        command: 'push'
+        containerRegistry: 'registryConnection'
+        repository: ${{ parameters.imageName }}
+        tags: |
+          ${{ parameters.tag }}
+  - job: Deploy
+    displayName: Deploy
+    dependsOn: Build
+    steps:
+      - task: AzureContainerApps@1
+        inputs:
+          #Nombre de conector creado en ADS para pegar con webApps
+          azureSubscription: 'appDeployConnection'
+          imageToDeploy: acrappsjorge.azurecr.io/${{ parameters.imageName }}:$(Build.BuildId)
+          #NOMBRE DEL CONTAINER APP
+          containerAppName: 'test-app-dev'
+          resourceGroup: rg-jorge
+          acrUsername: $(arcUser)
+          acrPassword: $(arcPWD)
