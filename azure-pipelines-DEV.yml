@@ -12,7 +12,7 @@ variables:
   - name: nodeEnv
     value: $[variables.NODE_ENV]
   
-  - group: test-api
+  - group: test-api-dev
   - name: nodePort
     value: $[variables.NODE_PORT]
   
