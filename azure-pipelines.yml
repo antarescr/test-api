@@ -14,6 +14,15 @@ variables:
   - group: test-api
   - name: nodePort
     value: $[variables.NODE_PORT]
+  
+  #Se reutilizan las credenciales ya creadas
+  - group: CICD
+  - name: arcUser
+    value: $[variables.acrUsername]
+  #Se reutilizan las credenciales ya creadas
+  - group: CICD
+  - name: arcPWD
+    value: $[variables.acrPassword]
 
 parameters:
   - name: tag
@@ -49,3 +58,16 @@ stages:
         repository: ${{ parameters.imageName }}
         tags: |
           ${{ parameters.tag }}
+  - job: Deploy
+    displayName: Deploy
+    dependsOn: Build
+    steps:
+      - task: AzureContainerApps@1
+        inputs:
+          #Nombre de conector creado en ADS para pegar con webApps
+          azureSubscription: 'appDeployConnection'
+          imageToDeploy: acrappsJorge.azurecr.io/${{ parameters.imageName }}:$(Build.BuildId)
+          containerAppName: 'app-test-app' # NOMBRE DEL CONTAINER APP
+          resourceGroup: rg-jorge
+          acrUsername: $(arcUser)
+          acrPassword: $(arcPWD)
